@@ -19,12 +19,12 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: 'user' })
+  @Column({ name: 'role', default: 'user' })
   role: string;
 
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }

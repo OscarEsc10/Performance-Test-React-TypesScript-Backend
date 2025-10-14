@@ -27,15 +27,15 @@ export class Product {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price: number;
 
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @Column({ nullable: true })
   category: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'image_url', nullable: true })
   imageUrl: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'create_at' })
   createdAt: Date;
 }
