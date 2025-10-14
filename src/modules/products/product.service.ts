@@ -23,11 +23,18 @@ export class ProductsService {
     limit = 20,
   ) {
     const qb = this.repo.createQueryBuilder('p');
+    qb.andWhere('p.is_active = :active', { active: true });
     if (filter.brand) qb.andWhere('p.brand = :brand', { brand: filter.brand });
     if (filter.category)
       qb.andWhere('p.category = :category', { category: filter.category });
     qb.skip((page - 1) * limit).take(limit);
     return qb.getMany();
+  }
+
+  async findOne(id: number) {
+    const product = await this.repo.findOne({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
   }
 
   async update(id: number, dto: UpdateProductDto) {
