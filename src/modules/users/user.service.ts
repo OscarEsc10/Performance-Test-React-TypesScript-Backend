@@ -29,7 +29,9 @@ export class UsersService {
   }
 
   async findById(id: number) {
-    return this.usersRepo.findOne({ where: { id } });
+    const user = await this.usersRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   async list() {
@@ -55,5 +57,19 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     await this.usersRepo.delete(id);
     return { deleted: true };
+  }
+
+  async activate(id: number) {
+    const user = await this.usersRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    user.isActive = true;
+    return this.usersRepo.save(user);
+  }
+
+  async deactivate(id: number) {
+    const user = await this.usersRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    user.isActive = false;
+    return this.usersRepo.save(user);
   }
 }
