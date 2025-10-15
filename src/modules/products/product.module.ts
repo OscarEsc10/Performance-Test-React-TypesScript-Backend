@@ -13,4 +13,3 @@ import { ProductsController } from './product.controller';
   exports: [ProductsService],
 })
 export class ProductsModule {}
-

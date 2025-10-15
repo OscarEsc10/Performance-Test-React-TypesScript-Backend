@@ -8,7 +8,7 @@ import {
 
 /**
  * Product entity
- * 
+ *
  * This class represents a product in the database.
  * It defines the table structure, data types, and column options.
  */

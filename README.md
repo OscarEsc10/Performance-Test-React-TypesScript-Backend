@@ -11,7 +11,8 @@ This repository contains the backend for TechNova, a tech products company that 
 ## Architecture
 
 - `src/app.module.ts`: Root module, wires modules.
-- `src/config/typeorm.config.ts`: URL-only DB connection with clear validation/logs.
+- `src/config/typeorm.Connection.config.ts`: TypeORM options (uses DB URL).
+- `src/config/configVariables.ts`: Loads `.env` variables.
 - `src/modules/products/`: Product entity, DTOs, service, controller.
 - `src/modules/users/`: User entity, DTO, service, controller.
 - `src/modules/auth/`: Auth module, controller, service, local/jwt strategies.
@@ -23,7 +24,7 @@ This repository contains the backend for TechNova, a tech products company that 
 Matches existing PostgreSQL tables and snake_case columns:
 
 - `users(id, username, email, password, role, is_active, created_at)`
-- `products(id, sku, name, brand, quantity, price, is_active, category, image_url, create_at)`
+- `products(id, sku, name, brand, quantity, price, is_active, category, image_url, create_at, user_id)`
 
 See:
 - `src/modules/users/entitites/user.entity.ts`
@@ -38,13 +39,19 @@ See:
 
 ### Environment
 
-Create `.env` with a Postgres URL and JWT settings:
+Create `.env` with a Postgres URL and settings:
 
 ```
 DB_CONNECTION=postgres://<user>:<password>@<host>:5432/<database>
+DB_SYNC=true
+DB_LOGGING=true
+DB_SSL=false
+DB_SSL_REJECT_UNAUTHORIZED=false
+
+PORT=3000
+
 JWT_SECRET=change_me
 JWT_EXPIRES_IN=3600
-PORT=3000
 ```
 
 > The app requires `DB_CONNECTION`. The config validates the URL and prints a sanitized summary at startup.
@@ -76,16 +83,23 @@ You should see DB config logs and a success connection message if the database e
 ### Products
 
 - `POST /products` create product (validates unique SKU).
-- `GET /products` list with optional filters `brand`, `category`, pagination `page`, `limit`.
+- `GET /products` list with optional filters `brand`, `category`, pagination `page`, `limit` (excludes soft-deleted).
+- `GET /products/:id` get by id.
 - `PATCH /products/:id` update (re-validates SKU uniqueness when changed).
+- `PUT /products/:id` replace (same update path under the hood).
 - `DELETE /products/:id` soft-delete (sets `is_active=false`).
 
 Entity/DTOs: `src/modules/products/entities/*`.
 
 ### Users
 
-- `POST /users` create user (decorator sets defaults, password hashing recommended).
-- Planned: list, findByName, update, remove (add in `users.controller.ts` and `user.service.ts`).
+- `POST /users` create user (password hashed on save).
+- `GET /users` list users.
+- `GET /users/search?username=...` filter by username.
+- `GET /users/:id` get by id.
+- `PATCH /users/:id` partial update (re-hashes password if provided).
+- `PUT /users/:id` replace (same update path under the hood).
+- `DELETE /users/:id` delete user.
 
 ## Validation & Error Handling
 
@@ -101,31 +115,7 @@ app.useGlobalFilters(new AllExceptionsFilter());
 
 ## Notes
 
-- Ensure the database mentioned in the URL exists.
-- Users passwords should be stored hashed. `AuthService` compares using `bcrypt`; update `UsersService.create()` to hash on save.
-- Protect routes with `JwtAuthGuard` as needed.
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **DB must exist**: ensure the database named in `DB_CONNECTION` exists and is reachable.
+- **Passwords hashed**: `UsersService` stores passwords hashed with `bcrypt` (salt 10). `AuthService` validates with `bcrypt.compare()`.
+- **Soft-delete**: `DELETE /products/:id` sets `is_active=false`. `GET /products` excludes soft-deleted by default.
+- **Auth**: Add `@UseGuards(JwtAuthGuard)` on routes you want protected.
