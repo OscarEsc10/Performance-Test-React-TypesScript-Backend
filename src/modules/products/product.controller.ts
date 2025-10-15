@@ -13,8 +13,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProductsService } from './product.service';
-import { CreateProductDto } from './entities/dto/create-product.dto';
-import { UpdateProductDto } from './entities/dto/update-product.dto';
+import type { CreateProductDto } from './entities/dto/create-product.dto';
+import type { UpdateProductDto } from './entities/dto/update-product.dto';
 
 /**
  * Controller that manages all product routes.
