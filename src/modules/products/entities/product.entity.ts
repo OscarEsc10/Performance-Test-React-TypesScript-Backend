@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { User } from '../../users/entitites/user.entity';
 
 /**
  * Product entity
@@ -37,7 +40,7 @@ export class Product {
   /**
    * The brand or company that makes the product.
    */
-  @Column()
+  @Column({ nullable: true })
   brand: string;
 
   /**
@@ -79,4 +82,14 @@ export class Product {
    */
   @CreateDateColumn({ name: 'create_at' })
   createdAt: Date;
+
+  /**
+   * Optional owner of the product. When the user is deleted, this is set to NULL.
+   */
+  @ManyToOne(() => User, (user) => user.products, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User | null;
 }

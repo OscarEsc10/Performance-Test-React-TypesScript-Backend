@@ -3,8 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserRole } from '../../../common/enums/user-role.enum';
+import { Product } from '../../products/entities/product.entity';
 
 /**
  * Represents a user in the system.
@@ -69,4 +71,10 @@ export class User {
    */
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  /**
+   * Products created/owned by this user.
+   */
+  @OneToMany(() => Product, (product) => product.user)
+  products: Product[];
 }
