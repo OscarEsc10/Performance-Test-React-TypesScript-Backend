@@ -13,8 +13,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProductsService } from './product.service';
-import type { CreateProductDto } from './entities/dto/create-product.dto';
-import type { UpdateProductDto } from './entities/dto/update-product.dto';
+import * as createProductDto from './entities/dto/create-product.dto';
+import * as updateProductDto from './entities/dto/update-product.dto';
 
 /**
  * Controller that manages all product routes.
@@ -29,7 +29,7 @@ export class ProductsController {
    * @param dto - Product data from the request body.
    */
   @Post()
-  async create(@Body() dto: CreateProductDto) {
+  async create(@Body() dto: createProductDto.CreateProductDto) {
     try {
       const product = await this.productsService.create(dto);
       return { message: 'Product created successfully', data: product };
@@ -101,7 +101,7 @@ export class ProductsController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateProductDto,
+    @Body() dto: updateProductDto.UpdateProductDto,
   ) {
     try {
       const updatedProduct = await this.productsService.update(id, dto);
@@ -128,7 +128,7 @@ export class ProductsController {
   @Put(':id')
   async replace(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateProductDto,
+    @Body() dto: updateProductDto.UpdateProductDto,
   ) {
     try {
       const product = await this.productsService.update(id, dto);
