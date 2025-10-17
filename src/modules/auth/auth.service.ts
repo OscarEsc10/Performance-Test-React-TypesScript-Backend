@@ -72,4 +72,19 @@ export class AuthService {
             }
         };
     }
+
+    /**
+     * Register a new user.
+     * @param registerDto - The registration data (username, email, password).
+     * @returns The created user data without the password.
+     * @throws Error if user creation fails (e.g., duplicate username/email).
+     */
+    async register(registerDto: { username: string; email: string; password: string }): Promise<any> {
+        // Use UsersService to create the user (handles hashing and defaults)
+        const user = await this.usersService.create(registerDto);
+
+        // Remove password before returning
+        const { password, ...result } = user as any;
+        return result;
+    }
 }
