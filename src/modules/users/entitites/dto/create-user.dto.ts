@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsBoolean, MinLength, IsOptional } from 'class-validator';
 
 /**
  * Data Transfer Object (DTO) for creating a new user.
@@ -42,4 +42,19 @@ export class CreateUserDto {
   @MinLength(6)
   @IsNotEmpty()
   password: string;
+
+  /** 
+    * role optional allowing create a new user 
+    * 
+    * - Must be string 
+  */
+  @IsString()
+  role?: string;
+
+  /**
+   * Default, this status will be Active but that can change
+   */
+  @IsBoolean()
+  @IsNotEmpty()
+  isActive?: boolean;
 }
