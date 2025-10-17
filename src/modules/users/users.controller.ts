@@ -15,6 +15,7 @@ import {
 import { UsersService } from './user.service';
 import { CreateUserDto } from './entitites/dto/create-user.dto';
 import { UpdateUserDto } from './entitites/dto/update-user.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -37,10 +38,12 @@ export class UsersController {
 
   /**
    * POST /users
-   * Create a new user.
+   * Create a new user (admin only).
    * @param dto User data for creation (CreateUserDto)
    */
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async create(@Body() dto: CreateUserDto) {
     try {
       const user = await this.usersService.create(dto);
@@ -55,9 +58,11 @@ export class UsersController {
 
   /**
    * GET /users
-   * Get a list of all users.
+   * Get a list of all users (admin only).
    */
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async list() {
     try {
       const users = await this.usersService.list();
